@@ -15,20 +15,19 @@ def readData(filename):
     # Sort by datetime
     csvfile = csvfile.sort_values("mday")
 
-
+    # Choose site first
     for sno in range(1, 4):
     # for sno in range(1,csvfile['sno'].max()):
 
         filter1 = csvfile['sno'] == sno
         timeDict = timeDict_creator('2018-03-01 00:00:00', '2018-03-31 23:00:00')
 
-        # for row in csvfile.itertuples():
+        # Put results into time interval dict
         for tkey, tvalue in timeDict.items():
-            # print('k:{0}, v:{1}'.format(tkey,tvalue))
 
             filter2 = csvfile['mday'].between(tkey, datetime.datetime.strptime(tkey, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1))
 
-            # filtered_csvfile is filtered by "location"sno & "time"mday
+            # filtered_csvfile is filtered by "location":sno & "time":mday
             filtered_csvfile = csvfile[(filter1 & filter2)]
             count = filtered_csvfile.shape[0]
             print('****************************')
@@ -46,22 +45,8 @@ def readData(filename):
 
             print('average is {0}'.format(average))
             timeDict[tkey] = average
-            # if row[1] == sno:
-            #     # print(type(row[4]))
-            #     # print(row[4])
-            #     t = row[4].to_pydatetime()
-            #     # print(type(row[4]))
-            #     string_t = t.strftime("%Y-%m-%d %H:%M:%S")
-            #     print(string_t[:16])
-            #     # print(row[4].hour, row[4].minute)
-            #
-            #     siteDict.append(timeDict)
-            #     # string_t = row[4]
-            #     # t = datetime.datetime.fromtimestamp(row[4])
-            #     # print(t)
-        # print(timeDict)
+
         siteDict[sno] = timeDict
-        # print(siteDict)
 
 
 def timeDict_creator(String_startTime, String_endTime):
