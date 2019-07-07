@@ -6,6 +6,22 @@ def readData(filename):
 
     csvfile = pd.read_csv('files/'+filename)
 
+    # sites = csvfile['sna'].unique()
+    # print(sites)
+
+    for sno in range(1, csvfile['sno'].max()):
+        filter1 = csvfile['sno'] == sno
+        filtered_csvfile = csvfile[filter1]
+        # print(filtered_csvfile[['sno','sna','lat','lng']])
+        for row in filtered_csvfile.itertuples():
+            dict = {'sna':row[7], 'lat':row[9], 'lng':row[10]}
+            siteInfo[sno] = dict
+            break
+
+    print(siteInfo)
+
+    # export siteInfo to csv file
+
     # Delete useless columns
     csvfile = csvfile.drop(['sna','sarea','ar','sareaen','snaen','aren','lat','lng'], axis=1)
 
@@ -15,9 +31,14 @@ def readData(filename):
     # Sort by datetime
     csvfile = csvfile.sort_values("mday")
 
+    return csvfile
+
+
+
+def average_computing(csvfile):
     # Choose site first
     for sno in range(1, 4):
-    # for sno in range(1,csvfile['sno'].max()):
+        # for sno in range(1,csvfile['sno'].max()):
 
         filter1 = csvfile['sno'] == sno
         timeDict = timeDict_creator('2018-03-01 00:00:00', '2018-03-31 23:00:00')
@@ -25,7 +46,9 @@ def readData(filename):
         # Put results into time interval dict
         for tkey, tvalue in timeDict.items():
 
-            filter2 = csvfile['mday'].between(tkey, datetime.datetime.strptime(tkey, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(hours=1))
+            filter2 = csvfile['mday'].between(tkey, datetime.datetime.strptime(tkey,
+                                                                               "%Y-%m-%d %H:%M:%S") + datetime.timedelta(
+                hours=1))
 
             # filtered_csvfile is filtered by "location":sno & "time":mday
             filtered_csvfile = csvfile[(filter1 & filter2)]
@@ -67,12 +90,15 @@ def timeDict_creator(String_startTime, String_endTime):
 
     return timeDict
 
+siteInfo = {}
 siteDict = {}
 
-readData('export.csv')
+csvfile = readData('export.csv')
+# average_computing(csvfile)
 
-print(siteDict[1])
-print(siteDict[2])
-print(siteDict[3])
+if siteDict:
+    print(siteDict[1])
+    print(siteDict[2])
+    print(siteDict[3])
 
 
