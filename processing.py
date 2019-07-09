@@ -1,13 +1,15 @@
-import datetime
+import datetime, csv
 import pandas as pd
 
+# So the flow is :
+# 1. readData() read export.csv which includes all data from government database and results an csv file "siteInfo.csv" created by export_siteInfo()
+#       and a dict variable "csvfile"
+# 2. put "csvfile" into average_computing() to compute amount of bike used each hour at each station, then we put results into siteDict{}
+
 def readData(filename):
-    print("yes")
+    print("Start reading...")
 
     csvfile = pd.read_csv('files/'+filename)
-
-    # sites = csvfile['sna'].unique()
-    # print(sites)
 
     for sno in range(1, csvfile['sno'].max()):
         filter1 = csvfile['sno'] == sno
@@ -15,12 +17,11 @@ def readData(filename):
         # print(filtered_csvfile[['sno','sna','lat','lng']])
         for row in filtered_csvfile.itertuples():
             dict = {'sna':row[7], 'lat':row[9], 'lng':row[10]}
-            siteInfo[sno] = dict
+            siteInfo_Dict[sno] = dict
             break
 
-    print(siteInfo)
-
-    # export siteInfo to csv file
+    # Export siteInfo to csv file
+    # export_siteInfo(siteInfo_Dict)
 
     # Delete useless columns
     csvfile = csvfile.drop(['sna','sarea','ar','sareaen','snaen','aren','lat','lng'], axis=1)
@@ -33,19 +34,40 @@ def readData(filename):
 
     return csvfile
 
-
+def export_siteInfo(siteInfo_Dict):
+    try:
+        with open('siteInfo.csv', 'w', newline='') as f:
+            siteInfo_columns = ['編號', '站名', '緯度', '經度']
+            writer = csv.DictWriter(f, fieldnames=siteInfo_columns)
+            writer.writeheader()
+            for key in siteInfo_Dict.keys():
+                f.write('%s' % (key))
+                new_dic = siteInfo_Dict[key]
+                print(new_dic)
+                for insidekeys in siteInfo_Dict[key]:
+                    print(new_dic[insidekeys])
+                    f.write(',%s' % (new_dic[insidekeys]))
+                f.write('\n')
+                # for insidekeys in siteInfo[key]:
+                #     f.write('%s\n' % (siteInfo[key][insidekeys]))
+    except IOError:
+        print("I/O error")
 
 def average_computing(csvfile):
     # Choose site first
-    for sno in range(1, 4):
-        # for sno in range(1,csvfile['sno'].max()):
+    for sno in range(1, 3):
+    # for sno in range(1,csvfile['sno'].max()):
 
+        # first filter to get data of a site
         filter1 = csvfile['sno'] == sno
+
+        # create a timeDict from 2018-xx-xx 00:00 - 23:00
         timeDict = timeDict_creator('2018-03-01 00:00:00', '2018-03-31 23:00:00')
 
         # Put results into time interval dict
         for tkey, tvalue in timeDict.items():
 
+            # second filter to get one site's data of each hour
             filter2 = csvfile['mday'].between(tkey, datetime.datetime.strptime(tkey,
                                                                                "%Y-%m-%d %H:%M:%S") + datetime.timedelta(
                 hours=1))
@@ -90,15 +112,32 @@ def timeDict_creator(String_startTime, String_endTime):
 
     return timeDict
 
-siteInfo = {}
+def export_siteDict():
+    try:
+        with open('siteDict.csv', 'w', newline='') as f:
+            siteDict_columns = ['站名', '緯度', '經度', '時間', '借出數量']
+            writer = csv.DictWriter(f, fieldnames=siteDict_columns)
+            writer.writeheader()
+            for key in siteDict.keys():
+                for timekey in siteDict[key]:
+                    f.write('%s,%s,%s,%s,%s\n' % (siteInfo_Dict[key]['sna'], siteInfo_Dict[key]['lat'], siteInfo_Dict[key]['lng'], timekey, siteDict[key][timekey]))
+    except IOError:
+        print("I/O error")
+
+# Information of each site, 4 columns : site_number, site_name, site_latitude, site_longitude
+siteInfo_Dict = {}
+
+# Computed information of amount bikes used in each site
 siteDict = {}
 
 csvfile = readData('export.csv')
-# average_computing(csvfile)
+average_computing(csvfile)
+
+export_siteDict()
 
 if siteDict:
-    print(siteDict[1])
-    print(siteDict[2])
-    print(siteDict[3])
+    print(len(siteDict.keys()))
+    for index in siteDict.keys():
+        print(siteDict[index])
 
 
