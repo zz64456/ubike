@@ -1,7 +1,7 @@
 import datetime, csv
 import pandas as pd
 
-# So the flow is :
+# The flow :
 # 1. readData() read export.csv which includes all data from government database and results an csv file "siteInfo.csv" created by export_siteInfo()
 #       and a dict variable "csvfile"
 # 2. put "csvfile" into average_computing() to compute amount of bike used each hour at each station, then we put results into siteDict{}
@@ -114,7 +114,7 @@ def timeDict_creator(String_startTime, String_endTime):
 
 def export_siteDict():
     try:
-        with open('siteDict.csv', 'w', newline='') as f:
+        with open('siteDict1-3-NewVersion.csv', 'w', newline='') as f:
             siteDict_columns = ['站名', '緯度', '經度', '時間', '借出數量']
             writer = csv.DictWriter(f, fieldnames=siteDict_columns)
             writer.writeheader()
