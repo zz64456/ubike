@@ -9,7 +9,7 @@ import pandas as pd
 def readData(filename):
     print("Start reading...")
 
-    csvfile = pd.read_csv('files/'+filename)
+    csvfile = pd.read_csv('origin_files/'+filename)
 
     for sno in range(1, csvfile['sno'].max()):
         filter1 = csvfile['sno'] == sno
@@ -20,7 +20,7 @@ def readData(filename):
             siteInfo_Dict[sno] = dict
             break
 
-    # Export siteInfo to csv file
+    # *** Export siteInfo to csv file
     # export_siteInfo(siteInfo_Dict)
 
     # Delete useless columns
@@ -54,15 +54,17 @@ def export_siteInfo(siteInfo_Dict):
         print("I/O error")
 
 def average_computing(csvfile):
-    # Choose site first
-    for sno in range(1, 3):
+
+    # Choose site first --- adjust site number here
+    for sno in range(401, 404):
+
     # for sno in range(1,csvfile['sno'].max()):
 
         # first filter to get data of a site
         filter1 = csvfile['sno'] == sno
 
         # create a timeDict from 2018-xx-xx 00:00 - 23:00
-        timeDict = timeDict_creator('2018-03-01 00:00:00', '2018-03-31 23:00:00')
+        timeDict = timeDict_creator('2018-04-01 00:00:00', '2018-04-30 23:00:00')
 
         # Put results into time interval dict
         for tkey, tvalue in timeDict.items():
@@ -114,13 +116,16 @@ def timeDict_creator(String_startTime, String_endTime):
 
 def export_siteDict():
     try:
-        with open('siteDict1-3-NewVersion.csv', 'w', newline='') as f:
-            siteDict_columns = ['站名', '緯度', '經度', '時間', '借出數量']
+        with open('siteDict401-404.csv', 'w', newline='') as f:
+            siteDict_columns = ['站名', '緯度', '經度', '時間', '借出數量', '日期', '時刻']
+
             writer = csv.DictWriter(f, fieldnames=siteDict_columns)
             writer.writeheader()
             for key in siteDict.keys():
                 for timekey in siteDict[key]:
-                    f.write('%s,%s,%s,%s,%s\n' % (siteInfo_Dict[key]['sna'], siteInfo_Dict[key]['lat'], siteInfo_Dict[key]['lng'], timekey, siteDict[key][timekey]))
+                    date = timekey[5:7] + '/' + timekey[8:10] + '/' + timekey[2:4]
+                    f.write('%s,%s,%s,%s,%s,%s,%s\n' % (siteInfo_Dict[key]['sna'], siteInfo_Dict[key]['lat'], siteInfo_Dict[key]['lng'], timekey,
+                                                   siteDict[key][timekey], date, timekey[11:16]))
     except IOError:
         print("I/O error")
 
@@ -130,7 +135,7 @@ siteInfo_Dict = {}
 # Computed information of amount bikes used in each site
 siteDict = {}
 
-csvfile = readData('export.csv')
+csvfile = readData('export_April.csv')
 average_computing(csvfile)
 
 export_siteDict()

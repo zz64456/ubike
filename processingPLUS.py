@@ -2,7 +2,7 @@
 import pandas as pd
 
 def read():
-    df = pd.read_excel('siteDictAll-part1.xlsx', skiprows=1, dtype={'時間':str})
+    df = pd.read_excel('siteDictAll.xlsx', dtype={'時間':str})
 
     date = []
     hour = []
@@ -20,11 +20,17 @@ def read():
     return df
 
 
-def output(df):
-    df.to_excel('testing.xlsx', sheet_name='ubike_Station_stats', index=False)
+def export(df):
+    df.to_excel('siteDictAll_v2.xlsx', sheet_name='ubike_Station_stats', index=False)
 
 
 
 cols = [3]
-dframe = read()
-output(dframe)
+# dframe = read()
+# print(dframe)
+# export(dframe)
+
+dt = '2018-04-01 02:00:00'
+print(dt)
+date = dt[5:7]+'/'+dt[8:10]+'/'+dt[2:4]
+print(date)
